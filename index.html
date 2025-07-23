@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Kiểm tra ngày hiện tại</title>
+</head>
+<body>
+  <input id="ngay" placeholder="Nhập ngày">
+  <button id ="btnCheck">Check</button>
+  <p id="kq"></p>
+
+  <script>
+    function kiemTra() {
+      var input = document.getElementById("ngay").value;
+      var btnCheck = document.getElementById("btnCheck");
+      var kq = document.getElementById("kq");
+      var today = new Date();
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0');
+      var yyyy = today.getFullYear();
+      var ngayHienTai = dd + "/" + mm + "/" + yyyy;
+
+      
+
+      if (input === ngayHienTai) {
+        kq.innerHTML = "True (" + ngayHienTai + ")";
+      } else {
+        kq.innerHTML = "False " + ngayHienTai;
+      }
+    }
+    btnCheck.onclick = kiemTra
+
+
+  </script>
+</body>
+</html>
