@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ Kiểm Tra Ngày Tháng</title>
+    <style>
+        .loi {
+            background-color: #ff4444;
+            color: white;
+        }
+        
+        .hop-le {
+            background-color: #00C851;
+            color: white;
+        }
+        
+        .canh-bao {
+            background-color: #ffbb33;
+            color: white;
+        }
+        
+        .thong-tin {
+            background-color: #33b5e5;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Kiểm Tra Ngày Tháng</h2>
+    <div>
+        Nhap ngay <input type="text" id="ngayNhap" placeholder="DD/MM/YYYY">
+        <button id="nutKiemTra">Kiểm Tra</button><br>
+        <span id="hienThiKetQua" class="ketqua"></span>
+    </div>
+
+    <script>
+        var oNhapNgay = document.getElementById("ngayNhap");
+        var nutKiemTra = document.getElementById("nutKiemTra");
+        var hienThiKetQua = document.getElementById("hienThiKetQua");
+
+        function tinhTuoi(ngaySinh) {
+            var homNay = new Date();
+            homNay.setHours(0, 0, 0, 0);
+
+            var tuoi = homNay.getFullYear() - ngaySinh.getFullYear();
+            var thang = homNay.getMonth() - ngaySinh.getMonth();
+
+            if (thang < 0 || (thang === 0 && homNay.getDate() < ngaySinh.getDate())) {
+                tuoi--;
+            }
+
+            return tuoi;
+        }
+
+        function kiemTraNgay(ngayNhap) {
+            var dinhDang = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+            if (!dinhDang.test(ngayNhap)) {
+                return {
+                    hopLe: false,
+                    thongBao: "Sai định dạng! Vui lòng nhập theo DD/MM/YYYY"
+                };
+            }
+
+            var [, ngayStr, thangStr, namStr] = dinhDang.exec(ngayNhap);
+            var ngay = parseInt(ngayStr, 10);
+            var thang = parseInt(thangStr, 10);
+            var nam = parseInt(namStr, 10);
+            if (isNaN(ngay) || isNaN(thang) || isNaN(nam)) {
+                return {
+                    hopLe: false,
+                    thongBao: "Giá trị số không hợp lệ"
+                };
+            }
+
+            if (thang < 1 || thang > 12) {
+                return {
+                    hopLe: false,
+                    thongBao: "Tháng phải từ 01 đến 12"
+                };
+            }
+            var doiTuongNgay = new Date(nam, thang - 1, ngay);
+            if (doiTuongNgay.getFullYear() !== nam ||
+                doiTuongNgay.getMonth() !== thang - 1 ||
+                doiTuongNgay.getDate() !== ngay) {
+                return {
+                    hopLe: false,
+                    thongBao: "Ngày không tồn tại trong lịch"
+                };
+            }
+
+            var homNay = new Date();
+            homNay.setHours(0, 0, 0, 0);
+
+            let soSanh = "";
+            if (doiTuongNgay < homNay) {
+                soSanh = " (đã qua)";
+            } else if (doiTuongNgay > homNay) {
+                soSanh = " (tương lai)";
+            } else {
+                soSanh = " (hôm nay)";
+            }
+
+            return {
+                hopLe: true,
+                thongBao: "Ngày hợp lệ: " + ngayNhap + soSanh,
+                doiTuongNgay: doiTuongNgay
+            };
+        }
+
+        function thucHienKiemTra() {
+            var giaTriNhap = oNhapNgay.value.trim();
+
+            if (giaTriNhap === '') {
+                hienThiKetQua.textContent = "Vui lòng nhập ngày cần kiểm tra";
+                hienThiKetQua.className = "ketqua loi";
+                return;
+            }
+
+            var ketQua = kiemTraNgay(giaTriNhap);
+
+            if (ketQua.hopLe) {
+                var tuoi = tinhTuoi(ketQua.doiTuongNgay);
+
+                if (tuoi < 18) {
+                    hienThiKetQua.textContent = `Bạn mới ${tuoi} tuổi. Chỉ chấp nhận từ 18 tuổi trở lên.`;
+                    hienThiKetQua.className = "ketqua canh-bao";
+                    return;
+                }
+
+                var homNay = new Date();
+                homNay.setHours(0, 0, 0, 0);
+
+                if (ketQua.doiTuongNgay < homNay) {
+                    hienThiKetQua.textContent = `Ngày hợp lệ. Bạn ${tuoi} tuổi.`;
+                    hienThiKetQua.className = "ketqua hop-le";
+                } else if (ketQua.doiTuongNgay > homNay) {
+                    hienThiKetQua.textContent = `Ngày hợp lệ (tương lai). Bạn sẽ ${tuoi} tuổi vào năm nay.`;
+                    hienThiKetQua.className = "ketqua thong-tin";
+                } else {
+                    hienThiKetQua.textContent = "Chính là hôm nay!";
+                    hienThiKetQua.className = "ketqua hop-le";
+                }
+
+                console.log("Thông tin chi tiết:");
+                console.log("- Năm:", ketQua.doiTuongNgay.getFullYear());
+                console.log("- Tháng:", ketQua.doiTuongNgay.getMonth() + 1);
+                console.log("- Ngày:", ketQua.doiTuongNgay.getDate());
+                console.log("- Thứ trong tuần:", ketQua.doiTuongNgay.getDay());
+                console.log("- Tuổi tính được:", tuoi);
+            } else {
+                hienThiKetQua.textContent = ketQua.thongBao;
+                hienThiKetQua.className = "ketqua loi";
+            }
+        }
+
+        nutKiemTra.addEventListener('click', thucHienKiemTra);
+        oNhapNgay.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') thucHienKiemTra();
+        });
+    </script>
+</body>
+
+</html>
